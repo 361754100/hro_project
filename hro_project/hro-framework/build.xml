@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="hro-framework" default="jar" basedir=".">
+	 
+	<property name="appname" value="hro-framework.jar" />
+	
+	<property name="serverpath" value="E:\ssm_svr_files\hro_lib" />
+	
+	<property name="mhotelpath" value="D:\workspace-hro\mhotel\WebRoot\WEB-INF\lib" />
+
+	<property name="msvrpath" value="D:\workspace-hro\msvr\WebRoot\WEB-INF\lib" />
+	
+	<target name="jar">
+		
+		<jar jarfile="${appname}" basedir="bin" />
+		<copy file="${appname}" tofile="${serverpath}\${appname}"></copy>
+		<copy file="${appname}" tofile="${mhotelpath}\${appname}"></copy>
+		<copy file="${appname}" tofile="${msvrpath}\${appname}"></copy>
+		<delete file="${appname}"></delete>
+	</target>
+	
+</project>

@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="content-type" content="text/html; charset=UTF-8">
+	<!--<link rel="stylesheet" type="text/css" href="./styles.css">-->
+	<link rel="stylesheet" href="/msvr/css/uikit/uikit.css">
+	<link rel="stylesheet" href="/msvr/css/datatable/dataTables.uikit.css">
+	<style type="text/css">
+		.select_panel{ display: block; width:100%; min-height:50px; height: auto; background-color: #F7F7F7; padding: 5px; }
+		.btn_list_panel{ background-color: #F7F7F7; padding: 5px; border-bottom: 1px solid #efefef; }
+	</style>
+	
+	<script type="text/javascript" >
+	var table = null;
+	
+	$(document).ready(function() {
+	    table = $('#picServerInfoTable').DataTable( {
+	        pagingType : 'full',
+	        scrollY : '300px',
+	        scrollCollapse : true,
+	        bScrollCollapse: true,
+	        language : dataTable_language,
+	        processing: false,
+	        serverSide: true,
+	        ajax: {
+	            "url": "/msvr/picserver/queryInfoPage",
+	            "type": "POST",
+	            "dataType": "json",
+	            "data": function(aoData){
+	            	dataTableFormToBean(document.getElementById("queryForm"), null, aoData);
+	            }
+	        },
+	        aLengthMenu : [10, 20, 30, 50, 100],
+	        bDestroy : true,
+	        //bSort: false,
+	        columns: [
+	               { data: 'id', name: 'ID' },
+	               { data: 'serverName', name: 'SERVER_NAME' },
+	               { data: 'serverIp', name: 'SERVER_IP' },
+	               { data: 'serverPort', name: 'SERVER_PORT' },
+	               { data: 'serverStatus', name: 'SERVER_STATUS' }
+	           ],
+            columnDefs: [
+                   {
+                     "targets": [ 0 ],
+                     "visible": false,
+                     "searchable": false
+                   } 
+               ]
+	    } );
+	    
+	    table.on( 'xhr', function () {
+	        var data = table.ajax.params();
+	        
+	        resizeTable_scrollBody();
+	    } );
+	    
+	    $('#picServerInfoTable tbody').on( 'click', 'tr', function () {
+	        $(this).toggleClass('selected');
+	    } );
+	    
+	    $('#searchBtn').on( 'click', function(){
+	    	table.ajax.reload();
+	    });
+	    
+	    $('#deleteBtn').on( 'click', function(){
+	    	var rows = $('#picServerInfoTable').getSelectRows();
+	    	var len = rows.length;
+	    	if(len == 0){
+	    		$('#tips-modal-dialog .modal-body').html('<span>请选择要删除的数据！</span>');
+	    		$('#tips-modal-dialog').modal('show');
+	    	}else{
+	    		$('#del-modal-dialog').modal('show');
+	    	}
+	    });
+	    
+	    $('#editBtn').on( 'click', function(){
+	    	var rows = $('#picServerInfoTable').getSelectRows();
+	    	if( rows == null || rows == undefined || rows.length == 0 || rows.length > 1){
+	    		$('#tips-modal-dialog .modal-body').html('<span>请选择一条记录！</span>');
+	    		$('#tips-modal-dialog').modal('show');
+	    		return;
+	    	}
+	    	
+	    	$('#editInfo #in_serverId').val(rows[0].id);
+	    	$('#editInfo #in_serverName').val(rows[0].serverName);
+	    	$('#editInfo #in_serverIp').val(rows[0].serverIp);
+	    	$('#editInfo #in_serverPort').val(rows[0].serverPort);
+	    	
+	    	$('#edit-modal-dialog').modal('show');
+	    });
+	    
+	    $('#resetBtn').on( 'click', function(){
+	    	$('#queryForm')[0].reset();
+	    });
+	} );
+	
+	/**
+	 * 保存酒店信息
+	 **/
+	function saveInfo(){
+		var bean = formToBean(document.getElementById("addInfo"));
+		var jsonStr = JSON.stringify(bean);
+		
+		$.ajax({
+		   type: 'POST',
+		   url: '/msvr/picserver/savePicServerInfo',
+		   data: jsonStr,
+		   contentType: 'application/json',
+		   dataType: 'json',
+		   success: function(rtObj){
+			  $('#addInfo')[0].reset();
+		      $('#add-modal-dialog').modal('hide');
+		      table.ajax.reload();
+		   }
+		});
+	}
+	
+	/**
+	 * 修改酒店信息
+	 */
+	function confirmUpdate(){
+		var bean = formToBean(document.getElementById("editInfo"));
+		var jsonStr = JSON.stringify(bean);
+		
+		$.ajax({
+		   type: 'POST',
+		   url: '/msvr/picserver/updatePicServerInfo',
+		   data: jsonStr,
+		   contentType: 'application/json',
+		   dataType: 'json',
+		   success: function(rtObj){
+			  $('#editInfo')[0].reset();
+		      $('#edit-modal-dialog').modal('hide');
+		      table.ajax.reload();
+		   }
+		});
+	}
+	
+	/**
+	 * 删除选中的数据
+	 **/
+	function confirmDelete(){
+		var rows = $('#picServerInfoTable').getSelectRows();
+		var ids = [];
+		var len = rows.length;
+		for(var i = 0; i< len; i++){
+			ids.push(rows[i].id);
+		}
+		var idStr = ids.join(',').toString();
+		var obj = new Object();
+		obj.ids = idStr;
+		
+		var jsonStr = JSON.stringify(obj);
+		
+		$.ajax({
+		   type: 'POST',
+		   url: '/msvr/picserver/deletePicServerInfo',
+		   data: jsonStr,
+		   contentType: 'application/json',
+		   dataType: 'json',
+		   success: function(rtObj){
+			  $('#del-modal-dialog').modal('hide');
+		      table.ajax.reload();
+		   }
+		});
+	}
+	
+	</script>
+</head>
+<body>
+	<div class="select_panel">
+		<form id="queryForm" class="form-inline" style="display: inline-block;">
+			<div class="form-group">
+				<label for="hotelName">服务器名称：</label>
+			    <input type="text" class="form-control" id="serverName" name="serverName" placeholder="请输入服务器名称">
+			</div>
+			<div class="form-group" style="margin-left: 10px;">
+			    <label for="picName">服务器IP：</label>
+			    <input type="text" class="form-control" id="serverIp" name="serverIp" placeholder="请输入服务器IP">
+			</div>
+		</form>
+		<button id="searchBtn" class="btn btn-default" style="display: inline-block;" title="搜索">
+			<span class="glyphicon glyphicon-search" aria-hidden="true"></span>
+		</button>
+		<button id="resetBtn" class="btn btn-default" style="display: inline-block;" title="重置">
+			<span class="glyphicon glyphicon-repeat" aria-hidden="true"></span>
+		</button>
+	</div>
+	<div class="btn_list_panel">
+		<button type="button" id="addBtn" class="btn btn-default" data-toggle="modal" data-target="#add-modal-dialog">
+			<span class="glyphicon glyphicon-plus" aria-hidden="true"></span>&nbsp;新增
+		</button>
+		<button type="button" id="editBtn" class="btn btn-default" >
+			<span class="glyphicon glyphicon-pencil" aria-hidden="true"></span>&nbsp;修改
+		</button>
+		<button type="button" id="deleteBtn" class="btn btn-default"><span class="glyphicon glyphicon-minus" aria-hidden="true"></span>&nbsp;删除</button>
+		<!-- <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-import" aria-hidden="true"></span>&nbsp;导入</button>
+		<button type="button" class="btn btn-default"><span class="glyphicon glyphicon-export" aria-hidden="true"></span>&nbsp;导出</button> -->
+	</div>
+	<table id="picServerInfoTable" class="uk-table uk-table-hover uk-table-striped" cellspacing="0" width="100%" >
+		<thead>
+	        <tr>
+	            <th width="14%">主键</th>
+	            <th>服务器名称</th>
+	            <th>服务器IP</th>
+	            <th>服务器端口</th>
+	            <th>服务器状态</th>
+	        </tr>
+	    </thead>
+	</table>
+	
+	<div id="add-modal-dialog" class="modal fade" >
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title">新增酒店基本信息</h4>
+	      </div>
+	      <div class="modal-body" style="text-align: center;">
+	        <form id="addInfo" class="addInfo">
+	          <table style="width: 550px;">
+	          	<tr height="45">
+	          		<td style=" width:20%; text-align: right;">
+	          			服务器名称：
+	          		</td>
+	          		<td>
+	          			<input type="text" class="form-control" id="in_serverName" name="serverName" placeholder="请输入服务器名称">
+	          		</td>
+	          	</tr>
+	          	<tr height="45">
+	          		<td style=" width:20%; text-align: right;">
+	          			服务器IP：
+	          		</td>
+	          		<td>
+	          			<input type="text" class="form-control" id="in_serverIp" name="serverIp" placeholder="请输入服务器IP">
+	          		</td>
+	          	</tr>
+	          	<tr height="90">
+	          		<td style="text-align: right;">
+	          			服务器端口：
+	          		</td>
+	          		<td>
+	          			<input type="text" class="form-control" id="in_serverPort" name="serverPort" placeholder="请输入服务器端口">
+	          		</td>
+	          	</tr>
+	          </table>
+			</form>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+	        <button type="button" class="btn btn-primary" onclick="saveInfo()">保存</button>
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+	
+	<div id="edit-modal-dialog" class="modal fade" >
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title">编辑服务器基本信息</h4>
+	      </div>
+	      <div class="modal-body" style="text-align: center;">
+	        <form id="editInfo" >
+	        	<input type="hidden" id="in_serverId" name="serverId" />
+	          <table style="width: 550px;">
+	          	<tr height="45">
+	          		<td style=" width:20%; text-align: right;">
+	          			服务器名称：
+	          		</td>
+	          		<td>
+	          			<input type="text" class="form-control" id="in_serverName" name="serverName" placeholder="请输入服务器名称">
+	          		</td>
+	          	</tr>
+	          	<tr height="45">
+	          		<td style=" width:20%; text-align: right;">
+	          			服务器IP：
+	          		</td>
+	          		<td>
+	          			<input type="text" class="form-control" id="in_serverIp" name="serverIp" placeholder="请输入服务器IP">
+	          		</td>
+	          	</tr>
+	          	<tr height="90">
+	          		<td style="text-align: right;">
+	          			服务器端口：
+	          		</td>
+	          		<td>
+	          			<input type="text" class="form-control" id="in_serverPort" name="serverPort" placeholder="请输入服务器端口">
+	          		</td>
+	          	</tr>
+	          </table>
+			</form>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+	        <button type="button" class="btn btn-primary" onclick="confirmUpdate()">保存</button>
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+	
+	<div id="del-modal-dialog" class="modal fade" >
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title">系统提示</h4>
+	      </div>
+	      <div class="modal-body" style="text-align: center;">
+	       	<span>确定要删除选中的数据吗？</span>
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+	        <button type="button" class="btn btn-primary" onclick="confirmDelete()">确定</button>
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+	
+	<div id="tips-modal-dialog" class="modal fade" >
+	  <div class="modal-dialog">
+	    <div class="modal-content">
+	      <div class="modal-header">
+	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	        <h4 class="modal-title">系统提示</h4>
+	      </div>
+	      <div class="modal-body" style="text-align: center;">
+	      	 
+	      </div>
+	      <div class="modal-footer">
+	        <button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
+	      </div>
+	    </div><!-- /.modal-content -->
+	  </div><!-- /.modal-dialog -->
+	</div><!-- /.modal -->
+	
+</body>
+</html>

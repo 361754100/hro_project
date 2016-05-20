@@ -1,0 +1,220 @@
+<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.0//EN" "http://www.wapforum.org/DTD/xhtml-mobile10.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8"/>
+<meta http-equiv="Cache-control" content="no-cache" />
+<meta content=”width=device-width, initial-scale=1.0, maximum-scale=1.0,  user-scalable=0;” name=”viewport” />
+<meta content=”yes” name=”apple-mobile-web-app-capable” />
+<meta content=”black” name=”apple-mobile-web-app-status-bar-style”  />
+<meta content=”telephone=no” name=”format-detection” />
+<title>移动用户登录</title>
+
+<!--<link href="../css/jquery.mobile-1.4.5.css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" href="../css/flickity/normalize.css" />
+<link rel="stylesheet" type="text/css" href="../css/flickity/default.css" /> -->
+<link rel="stylesheet" type="text/css" href="../css/flickity/flickity.css" />
+<link rel="stylesheet" type="text/css" href="../../css/bootstrap/bootstrap.css" />
+<style type="text/css">
+body{font-size:medium;line-height:1.5em;text-align:center;}
+img{border:0;}
+form{margin:0;padding:0;}
+#panel_top_div {display: block; float:left; width: 100%; height: 190px; }
+.panel_ads_square_div { display: block; float:left; text-align:center; width:100%; min-height:200px; margin-top:3px; height: auto;}
+
+.square_ads_pic, .lsquare_ads_pic{ display: block; float:left; width: 100px; height: 100px; background-color: blue; }
+.ads_square_tag{ display: block; float:left; margin: 3px; text-align: left;}
+.ads_lsquare_tag{ display: block; float:left; margin: 3px; text-align: left;}
+
+.tag_title_logo{
+  color: red;
+}
+.tag_title_bar {
+  display: block; 
+  height: 22px; 
+  width: 100%; 
+  line-height: 30px;
+  font: 18px, "Microsoft Yahei","微软雅黑",arial;
+}
+.tag_title_bar a{
+  text-decoration: none; color: #000;
+}
+
+
+
+
+.gallery-cell {
+  width: 100%;
+  height: 140px;
+}
+.flickity-page-dots {
+  bottom: 0px;
+}
+/* white circles */
+.flickity-page-dots .dot {
+  width: 8px;
+  height: 8px;
+  opacity: 0.5;
+  background: white;
+  border: 0px solid white;
+}
+/* fill-in selected dot */
+.flickity-page-dots .dot.is-selected {
+  background: white;
+}
+</style>
+
+<script type="text/javascript" src="../../javascript/jquery/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="../javascript/flickity/flickity.pkgd.js"></script>
+<script type="text/javascript" src="../javascript/flickity/imagesloaded.pkgd.js"></script>
+<!-- <script type="text/javascript" src="../javascript/jquery.mobile-1.4.5.js"></script> -->
+<script type="text/javascript">
+$(document).ready(function(){
+	initCss();
+});
+
+var initCss = function(){
+	var screenWth = $(document).width();
+	var squareAdsWth = screenWth/3-6;
+	var lsquareAdsWth = screenWth/2-6;
+	
+	//$('.panel_ads_square_div').css({"height":screenWth+'px'});
+	$('.ads_square_tag').css({"width":squareAdsWth+'px', "height":(squareAdsWth+50)+'px'});
+	$('.square_ads_pic').css({"width":squareAdsWth+'px', "height":squareAdsWth+'px'});
+	$('.lsquare_ads_pic').css({"width":lsquareAdsWth+'px', "height":squareAdsWth+'px'});
+	
+	//alert(' screenWth --->'+ adsWth);
+}
+</script>
+</head>
+
+<body>
+<div>
+	<div id="panel_top_div">
+		<div class="gallery js-flickity"
+		  data-flickity-options='{ "imagesLoaded": true, "prevNextButtons": false, "autoPlay":true, "percentPosition": false }'>
+		  <img width="100%" height="190px" src="../images/hotel_ad_01.jpg" alt="sample-01" />
+		  <img width="100%" height="190px" src="../images/hotel_ad_02.jpg" alt="sample-02" />
+		  <img width="100%" height="190px" src="../images/hotel_ad_03.jpg" alt="sample-03" />
+		  <img width="100%" height="190px" src="../images/hotel_ad_04.jpg" alt="sample-04" />
+		  <img width="100%" height="190px" src="../images/hotel_ad_05.jpg" alt="sample-05" />
+		  <img width="100%" height="190px" src="../images/hotel_ad_06.jpg" alt="sample-06" />
+		</div>
+	</div>
+	<p class="tag_title_bar" >
+		<span style="float: left;">&nbsp;<i class="tag_title_logo glyphicon glyphicon-list-alt" ></i>&nbsp;星级推荐</span>
+		<a href="javascript:void(0)"  style="float: right;">更多&gt;</a>		
+	</p>
+	<div class="panel_ads_square_div" >
+		<div class="ads_square_tag">
+			<a href="javascript:void(0);" class="square_ads_pic">
+				<img width="100%" height="100%" src="../images/hotels/hotel_1.jpg" alt="hotel_1" />
+			</a>
+			<span>来一次有深度的旅行~平凡之路！</span>
+		</div>
+		
+		<div class="ads_square_tag">
+			<a href="javascript:void(0);" class="square_ads_pic">
+				<img width="100%" height="100%" src="../images/hotels/hotel_2.jpg" alt="hotel_2" />
+			</a>
+			<span>来一次有深度的旅行~平凡之路！</span>
+		</div>
+		
+		<div class="ads_square_tag">
+			<a href="javascript:void(0);" class="square_ads_pic">
+				<img width="100%" height="100%" src="../images/hotels/hotel_3.jpg" alt="hotel_3" />
+			</a>
+			<span>来一次有深度的旅行~平凡之路！</span>
+		</div>
+		
+		<div class="ads_square_tag">
+			<a href="javascript:void(0);" class="square_ads_pic">
+				<img width="100%" height="100%" src="../images/hotels/hotel_4.jpg" alt="hotel_4" />
+			</a>
+			<span>来一次有深度的旅行~平凡之路！</span>
+		</div>
+		
+		<div class="ads_square_tag">
+			<a href="javascript:void(0);" class="square_ads_pic">
+				<img width="100%" height="100%" src="../images/hotels/hotel_5.jpg" alt="hotel_5" />
+			</a>
+			<span>来一次有深度的旅行~平凡之路！</span>
+		</div>
+		
+		<div class="ads_square_tag">
+			<a href="javascript:void(0);" class="square_ads_pic">
+				<img width="100%" height="100%" src="../images/hotels/hotel_6.jpg" alt="hotel_6" />
+			</a>
+			<span>来一次有深度的旅行~平凡之路！</span>
+		</div>
+	</div>
+	<p class="tag_title_bar" >
+		<span style="float: left;">&nbsp;<i class="tag_title_logo glyphicon glyphicon-time" ></i>&nbsp;限时优惠</span>
+		<a href="javascript:void(0)"  style="float: right;">更多&gt;</a>		
+	</p>
+	<div class="panel_ads_square_div" >
+		<div class="ads_lsquare_tag">
+			<a href="javascript:void(0);" class="lsquare_ads_pic">
+				<img width="100%" height="100%" src="../images/hotels/second_buy_01.jpg" alt="second_buy_1" />
+			</a>
+		</div>
+		<div class="ads_lsquare_tag">
+			<a href="javascript:void(0);" class="lsquare_ads_pic">
+				<img width="100%" height="100%" src="../images/hotels/second_buy_02.jpg" alt="second_buy_2" />
+			</a>
+		</div>
+		<div class="ads_lsquare_tag">
+			<a href="javascript:void(0);" class="lsquare_ads_pic">
+				<img width="100%" height="100%" src="../images/hotels/second_buy_03.jpg" alt="second_buy_3" />
+			</a>
+		</div>
+		<div class="ads_lsquare_tag">
+			<a href="javascript:void(0);" class="lsquare_ads_pic">
+				<img width="100%" height="100%" src="../images/hotels/second_buy_04.jpg" alt="second_buy_4" />
+			</a>
+		</div>
+	</div>
+	<p class="tag_title_bar" >
+		<span style="float: left;">&nbsp;<i class="tag_title_logo glyphicon glyphicon-tower" ></i>&nbsp;酱油攻略</span>
+		<a href="javascript:void(0)"  style="float: right;">更多&gt;</a>		
+	</p>
+	<div class="panel_ads_square_div" >
+		<div class="ads_square_tag">
+			<a href="javascript:void(0);" class="square_ads_pic">
+				<img width="100%" height="100%" src="../images/hotels/food_01.jpg" alt="food_01" />
+			</a>
+			<span>一起来吃喝玩乐！</span>
+		</div>
+		<div class="ads_square_tag">
+			<a href="javascript:void(0);" class="square_ads_pic">
+				<img width="100%" height="100%" src="../images/hotels/food_02.jpg" alt="food_02" />
+			</a>
+			<span>一起来吃喝玩乐！</span>
+		</div>
+		<div class="ads_square_tag">
+			<a href="javascript:void(0);" class="square_ads_pic">
+				<img width="100%" height="100%" src="../images/hotels/food_03.jpg" alt="food_03" />
+			</a>
+			<span>一起来吃喝玩乐！</span>
+		</div>
+		<div class="ads_square_tag">
+			<a href="javascript:void(0);" class="square_ads_pic">
+				<img width="100%" height="100%" src="../images/hotels/food_04.jpg" alt="food_04" />
+			</a>
+			<span>一起来吃喝玩乐！</span>
+		</div>
+		<div class="ads_square_tag">
+			<a href="javascript:void(0);" class="square_ads_pic">
+				<img width="100%" height="100%" src="../images/hotels/food_05.jpg" alt="food_05" />
+			</a>
+			<span>一起来吃喝玩乐！</span>
+		</div>
+		<div class="ads_square_tag">
+			<a href="javascript:void(0);" class="square_ads_pic">
+				<img width="100%" height="100%" src="../images/hotels/food_06.jpg" alt="food_06" />
+			</a>
+			<span>一起来吃喝玩乐！</span>
+		</div>
+	</div>
+</div>
+</body>
+</html>

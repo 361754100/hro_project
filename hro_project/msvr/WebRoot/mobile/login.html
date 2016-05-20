@@ -1,0 +1,55 @@
+<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.0//EN" "http://www.wapforum.org/DTD/xhtml-mobile10.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=utf-8"/>
+<meta http-equiv="Cache-control" content="no-cache" />
+<meta content=”width=device-width, initial-scale=1.0, maximum-scale=1.0,  user-scalable=0;” name=”viewport” />
+<meta content=”yes” name=”apple-mobile-web-app-capable” />
+<meta content=”black” name=”apple-mobile-web-app-status-bar-style”  />
+<meta content=”telephone=no” name=”format-detection” />
+<title>移动用户登录</title>
+<link href="css/jquery.mobile-1.4.5.css" rel="stylesheet" />
+<style type="text/css">
+body{font-size:medium;line-height:1.5em;text-align:center;}
+img{border:0;}
+form{margin:0;padding:0;}
+.loginDiv {position:relative; margin-left:auto; margin-right:auto; display: block; width: 90%; height: 100%;}
+.loginTable {width: 100%; height: 100%; }
+.loginTable td{width: 100%; }
+</style>
+
+<script type="text/javascript" src="../javascript/jquery-1.7.2.js"></script>
+<script type="text/javascript" src="javascript/jquery.mobile-1.4.5.js"></script>
+
+</head>
+
+<body>
+<div id="loginDiv" class="loginDiv">
+	<form id="loginForm" >
+		<table id="loginTable" class="loginTable" >
+			<tr>
+				<td align="left">
+					<embed src="images/logo.svg" type="image/svg+xml" pluginspage="http://www.adobe.com/svg/viewer/install/" />  
+				</td>
+			</tr>
+	    	<tr>
+	        	<td>
+	            	<input type="text" id="username" name="username" placeholder="账号" />
+	            </td>
+	        </tr>
+	        <tr>
+	        	<td>
+	            	<input type="password" id="password" name="password" placeholder="密码" />
+	            </td>
+	        </tr>
+	        <tr>
+	        	<td>
+	            	<button class="ui-btn ui-corner-all">登录</button>
+	            </td>
+	        </tr>
+	    </table>
+	</form>
+</div>
+
+</body>
+</html>

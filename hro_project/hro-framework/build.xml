@@ -5,9 +5,11 @@
 	
 	<property name="serverpath" value="E:\ssm_svr_files\hro_lib" />
 	
-	<property name="mhotelpath" value="D:\workspace-hro\mhotel\WebRoot\WEB-INF\lib" />
+	<property name="mhotelpath" value="E:\ssm_svr_files\hero_git\hro_project\hro_project\mhotel\WebRoot\WEB-INF\lib" />
 
-	<property name="msvrpath" value="D:\workspace-hro\msvr\WebRoot\WEB-INF\lib" />
+	<property name="msvrpath" value="E:\ssm_svr_files\hero_git\hro_project\hro_project\msvr\WebRoot\WEB-INF\lib" />
+
+	<property name="picsvrpath" value="D:\workspace-hro\picsvr\WebRoot\WEB-INF\lib" />
 	
 	<target name="jar">
 		
@@ -15,6 +17,7 @@
 		<copy file="${appname}" tofile="${serverpath}\${appname}"></copy>
 		<copy file="${appname}" tofile="${mhotelpath}\${appname}"></copy>
 		<copy file="${appname}" tofile="${msvrpath}\${appname}"></copy>
+		<copy file="${appname}" tofile="${picsvrpath}\${appname}"></copy>
 		<delete file="${appname}"></delete>
 	</target>
 	

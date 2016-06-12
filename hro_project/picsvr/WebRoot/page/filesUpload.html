@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>图片上传</title>
+
+<link rel="stylesheet" type="text/css" href="../css/uploadify/uploadify.css" />
+<link rel="stylesheet" type="text/css" href="../css/bootstrap/bootstrap.css" />
+<script src="../javascript/swfobject.js"></script>
+<script src="../javascript/jquery/jquery-1.11.3.js"></script>
+<script src="../javascript/uploadify/jquery.uploadify.js"></script>
+<script type="text/javascript" src="../javascript/bootstrap/bootstrap.js"></script>
+<script type="text/javascript">
+
+</script>
+<script type="text/javascript">
+
+$(document).ready(function(){
+	
+	 $("#uploadify").uploadify({
+	       'auto' : true,
+	       'multi': true,
+	       'method' : "post",
+	       /***
+	       'formData' : {
+				'someKey' : '123'
+	       },
+	       ***/
+	       'height' : 34,//按钮图片的高度
+	       'width' : 80,//按钮图片的长度
+	       'swf' : '../swf/uploadify.swf', // flash
+	       'uploader' : '/picsvr/fileOperate/multiFileUpload', // 数据处理url
+	       'fileTypeDesc' : '请选择gif,jpg,png 文件',
+	       'fileTypeExts' : '*.gif;*.jpg;*.jpeg;*.png',
+	       'fileSizeLimit' : '2048KB',
+	       'buttonText' : '选择图片',
+	       //'uploadLimit' : uploadLimit_1,
+	       'successTimeout' : 30,
+	       'requeueErrors' : false,
+	       'removeTimeout' : 1,
+	       'removeCompleted' : true,
+	       //'queueSizeLimit' :1,
+	       'queueID'  : 'fileQueue',
+	       'progressData' : 'speed',
+	       'onInit' : function (){},
+	       // 单个文件上传成功时的处理函数
+	       'onUploadSuccess' : function(file, data, response){
+	    	    //$("#uploader_view1").html('');
+	    	    //上传的文件保存在临时目录
+	     		//$("#uploader_view1").append('<img height="100" alt="" src="${ctx}/upload/enterprice/temp/'+ data + '"/>');
+	     		//$("#mainPic1").val(data);
+	     		//$('#uploadify').uploadify('settings','uploadLimit', ++uploadLimit_1);
+	    	},
+	       'onQueueComplete' : function(queueData) {
+	     		//$('#uploader_msg').html(queueData.uploadsSuccessful + '图片上传成功。');
+	    	}
+    });
+
+});
+</script>
+
+</head>
+
+<body>
+	<div id="fileQueue"></div>
+    <input type="file" name="uploadify" id="uploadify" />
+    <p>
+      <a href="javascript:$('#uploadify').uploadifyUpload()">上传</a>| 
+      <a href="javascript:$('#uploadify').uploadifyClearQueue()">取消上传</a>
+    </p>
+</body>
+</html>

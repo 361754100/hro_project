@@ -5,18 +5,17 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.UUID;
 
-import javax.imageio.ImageWriter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FileUtils;
-import org.bson.Document;
-import org.springframework.data.mongodb.core.MongoOperations;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,16 +26,18 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
-
 import com.hro.core.cache.PictureCacheManager;
 import com.hro.core.common.log.PicSvrLog;
 import com.hro.core.common.util.StringUtil;
+import com.hro.core.model.PicInfo;
 import com.hro.core.mongodb.MongoJdbc;
+import com.hro.core.service.picsvr.PicInfoService;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+
+import sun.misc.BASE64Decoder;
+import sun.misc.BASE64Encoder;
 
 @Controller
 @RequestMapping("/fileOperate")
@@ -46,6 +47,10 @@ public class FileOperateController {
 	private BASE64Decoder decoder = new BASE64Decoder();
 	//编码器
 	private BASE64Encoder encoder = new BASE64Encoder();
+	
+	@Autowired
+	@Qualifier("m_picInfoService") 
+	private PicInfoService picInfoService;
 
 	@RequestMapping(value="/fileUpload", method=RequestMethod.POST  )
 	@ResponseBody
@@ -58,19 +63,25 @@ public class FileOperateController {
         try {
 			FileUtils.copyInputStreamToFile(uploadFile.getInputStream(), new File(realPath, uploadFile.getOriginalFilename()));
 	        
-			MongoOperations mongoDatabase = MongoJdbc.getMongoTemplate("hero_mongodb");
-			DBCollection collection = mongoDatabase.getCollection("hero_picsvr");
-//	        List<Document> documents = new ArrayList<Document>();  
-	        
-	        Document fileDoc = new Document("realPath", realPath+"/"+uploadFile.getOriginalFilename())
-				.append("virtualPath", filePath+"/"+uploadFile.getOriginalFilename());
-	        
-	        mongoDatabase.save(fileDoc);
-	        
+			PicInfo picInfo = new PicInfo();
+			picInfo.setId(UUID.randomUUID().toString());
+			
+			int cnt = picInfoService.savePicInfo(picInfo);
+			System.out.println(" cnt --->"+ cnt);
+			
+			
+//			MongoOperations mongoDatabase = MongoJdbc.getMongoTemplate("hero_mongodb");
+//			DBCollection collection = mongoDatabase.getCollection("hero_picsvr");
+////	        List<Document> documents = new ArrayList<Document>();  
+//	        
+//	        Document fileDoc = new Document("realPath", realPath+"/"+uploadFile.getOriginalFilename())
+//				.append("virtualPath", filePath+"/"+uploadFile.getOriginalFilename());
+//	        
+//	        mongoDatabase.save(fileDoc);
 //	        collection.insertMany(documents);
 			
 			rtMsg = "success";
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 			
@@ -213,7 +224,7 @@ public class FileOperateController {
 			}else {
 				//如果用的是Tomcat服务器，则文件会上传到\\%TOMCAT_HOME%\\webapps\\YourWebProject\\WEB-INF\\upload\\文件夹中  
 				String realPath = request.getSession().getServletContext().getRealPath("/uploaded/"+ fileKey);  
-				File file = FileUtils.getFile(realPath);
+				File file = new File(realPath);
 				
 				if(file != null){
 					int length = 0;
@@ -276,4 +287,13 @@ public class FileOperateController {
         }
         
 	}
+
+	public PicInfoService getPicInfoService() {
+		return picInfoService;
+	}
+
+	public void setPicInfoService(PicInfoService picInfoService) {
+		this.picInfoService = picInfoService;
+	}
+	
 }

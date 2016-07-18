@@ -26,7 +26,7 @@
 	<bean id="morphia" class="org.mongodb.morphia.Morphia" />
 
 	<!-- datastore实例 -->
-	<bean id="dataStore" class="org.mongodb.morphia.DatastoreImpl">
+	<bean id="mongodbStore" class="org.mongodb.morphia.DatastoreImpl">
 		<constructor-arg name="morphia" ref="morphia" />
 		<constructor-arg name="mongoClient" ref="mongo" />
 		<constructor-arg name="dbName" value="${mongodb.databaseName}" />

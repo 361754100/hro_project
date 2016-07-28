@@ -10,171 +10,7 @@
 		.btn_list_panel{ background-color: #F7F7F7; padding: 5px; border-bottom: 1px solid #efefef; }
 	</style>
 	
-	<script type="text/javascript" >
-	var table = null;
-	
-	$(document).ready(function() {
-	    table = $('#hotelInfoTable').DataTable( {
-	        pagingType : 'full',
-	        scrollY : '300px',
-	        scrollCollapse : true,
-	        language : dataTable_language,
-	        processing: false,
-	        serverSide: true,
-	        ajax: {
-	            "url": "/minfo/hotel/queryHotelInfo.do",
-	            "type": "POST",
-	            "dataType": "json",
-	            "data": function(aoData){
-	            	dataTableFormToBean(document.getElementById("queryForm"), null, aoData);
-	            }
-	        },
-	        /***
-	        sServerMethod: "POST",
-	        sAjaxSource: "/mhotel/hotel/queryHotelInfo.do",  
-	        fnServerParams: function ( aoData ) {
-	        	//dataTableFormToBean(document.getElementById("queryForm"), null, aoData);
-	        	formToBean(document.getElementById("queryForm"));
-	        },
-	        ***/
-	        aLengthMenu : [10, 20, 30, 50, 100],
-	        bDestroy : true,
-	        //bSort: false,
-	        columns: [
-	               { data: 'id', name: 'ID' },
-	               { data: 'hotelName', name: 'HOTEL_NAME' },
-	               { data: 'address', name: 'ADDRESS' },
-	               { data: 'introduction', name: 'INTRODUCTION' },
-	               { data: 'bdX', name: 'BD_X' },
-	               { data: 'bdY', name: 'BD_Y' },
-	               { data: 'picInfos[0].picName', name: 'PIC_NAME' }
-	           ],
-            columnDefs: [
-                   {
-                     "targets": [ 0 ],
-                     "visible": false,
-                     "searchable": false
-                   } 
-               ]
-	    } );
-	    
-	    table.on( 'xhr', function () {
-	        var data = table.ajax.params();
-	        
-	        resizeTable_scrollBody();
-	    } );
-	    
-	    $('#hotelInfoTable tbody').on( 'click', 'tr', function () {
-	        $(this).toggleClass('selected');
-	    } );
-	    
-	    $('#searchBtn').on( 'click', function(){
-	    	table.ajax.reload();
-	    });
-	    
-	    $('#deleteBtn').on( 'click', function(){
-	    	var rows = $('#hotelInfoTable').getSelectRows();
-	    	var len = rows.length;
-	    	if(len == 0){
-	    		$('#tips-modal-dialog .modal-body').html('<span>请选择要删除的数据！</span>');
-	    		$('#tips-modal-dialog').modal('show');
-	    	}else{
-	    		$('#del-modal-dialog').modal('show');
-	    	}
-	    });
-	    
-	    $('#editBtn').on( 'click', function(){
-	    	var rows = $('#hotelInfoTable').getSelectRows();
-	    	if( rows == null || rows == undefined || rows.length == 0 || rows.length > 1){
-	    		$('#tips-modal-dialog .modal-body').html('<span>请选择一条记录！</span>');
-	    		$('#tips-modal-dialog').modal('show');
-	    		return;
-	    	}
-	    	$('#editHotelInfo #in_hotelId').val(rows[0].id);
-	    	$('#editHotelInfo #in_hotelName').val(rows[0].hotelName);
-	    	$('#editHotelInfo #in_hotelAddress').val(rows[0].address);
-	    	$('#editHotelInfo #in_hotelIntroduction').val(rows[0].introduction);
-	    	
-	    	$('#edit-modal-dialog').modal('show');
-	    });
-	    
-	    $('#resetBtn').on( 'click', function(){
-	    	$('#queryForm')[0].reset();
-	    });
-	} );
-	
-	/**
-	 * 保存酒店信息
-	 **/
-	function saveInfo(){
-		var bean = formToBean(document.getElementById("addHotelInfo"));
-		var jsonStr = JSON.stringify(bean);
-		
-		$.ajax({
-		   type: 'POST',
-		   url: '/mhotel/hotel/saveHotelInfo.do',
-		   data: jsonStr,
-		   contentType: 'application/json',
-		   dataType: 'json',
-		   success: function(rtObj){
-			  $('#addHotelInfo')[0].reset();
-		      $('#add-modal-dialog').modal('hide');
-		      table.ajax.reload();
-		   }
-		});
-	}
-	
-	/**
-	 * 修改酒店信息
-	 */
-	function confirmUpdate(){
-		var bean = formToBean(document.getElementById("editHotelInfo"));
-		var jsonStr = JSON.stringify(bean);
-		
-		$.ajax({
-		   type: 'POST',
-		   url: '/mhotel/hotel/updateHotelInfo.do',
-		   data: jsonStr,
-		   contentType: 'application/json',
-		   dataType: 'json',
-		   success: function(rtObj){
-			  $('#editHotelInfo')[0].reset();
-		      $('#edit-modal-dialog').modal('hide');
-		      table.ajax.reload();
-		   }
-		});
-	}
-	
-	/**
-	 * 删除选中的数据
-	 **/
-	function confirmDelete(){
-		var rows = $('#hotelInfoTable').getSelectRows();
-		var ids = [];
-		var len = rows.length;
-		for(var i = 0; i< len; i++){
-			ids.push(rows[i].id);
-		}
-		var idStr = ids.join(',').toString();
-		var obj = new Object();
-		obj.ids = idStr;
-		
-		var jsonStr = JSON.stringify(obj);
-		
-		$.ajax({
-		   type: 'POST',
-		   url: '/mhotel/hotel/deleteHotelInfo.do',
-		   data: jsonStr,
-		   contentType: 'application/json',
-		   dataType: 'json',
-		   success: function(rtObj){
-			  $('#del-modal-dialog').modal('hide');
-		      table.ajax.reload();
-		   }
-		});
-	}
-	
-	</script>
+	<script type="text/javascript" src="/minfo/javascript/hotelInfoManage.js"></script>
 </head>
 <body>
 	<div class="select_panel">
@@ -265,7 +101,7 @@
 	</div><!-- /.modal -->
 	
 	<div id="edit-modal-dialog" class="modal fade" >
-	  <div class="modal-dialog">
+	  <div class="modal-dialog" style="width: 95%; ">
 	    <div class="modal-content">
 	      <div class="modal-header">
 	        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
@@ -276,15 +112,13 @@
 	        	<input type="hidden" id="in_hotelId" name="hotelId" />
 	          <table style="width: 550px;">
 	          	<tr height="45">
-	          		<td style=" width:20%; text-align: right;">
+	          		<td style=" text-align: right;">
 	          			酒店名称：
 	          		</td>
 	          		<td>
 	          			<input type="text" class="form-control" id="in_hotelName" name="hotelName" placeholder="酒店名称">
 	          		</td>
-	          	</tr>
-	          	<tr height="45">
-	          		<td style=" width:20%; text-align: right;">
+	          		<td style=" padding-left:10px; text-align: right;">
 	          			酒店地址：
 	          		</td>
 	          		<td>
@@ -295,7 +129,7 @@
 	          		<td style="text-align: right;">
 	          			酒店简介：
 	          		</td>
-	          		<td>
+	          		<td colspan="3">
 	          			<textarea class="form-control" id="in_hotelIntroduction" name="hotelIntroduction" rows="3" placeholder="酒店简介"></textarea>
 	          		</td>
 	          	</tr>
@@ -306,6 +140,26 @@
 	        <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
 	        <button type="button" class="btn btn-primary" onclick="confirmUpdate()">保存</button>
 	      </div>
+	      
+	      <div class="tabbable"> <!-- Only required for left/right tabs -->
+			<ul class="nav nav-tabs">
+			   <li class="active">
+			       <a href="#tab_pic_upload" data-toggle="tab">图片上传</a>
+			   </li>
+			   <li>
+			   	   <a href="#tab_base_info" data-toggle="tab">资料明细</a>
+			   </li>
+			</ul>
+			<div class="tab-content">
+			   <div class="tab-pane active" id="tab_pic_upload">
+			   		<iframe style="border: 0px; height:600px; " src="/picsvr/page/pictureUpload.html" width="100%" ></iframe>
+			   </div>
+			   <div class="tab-pane" id="tab_base_info">
+			   
+			   </div>
+			</div>
+		  </div>
+	      
 	    </div><!-- /.modal-content -->
 	  </div><!-- /.modal-dialog -->
 	</div><!-- /.modal -->

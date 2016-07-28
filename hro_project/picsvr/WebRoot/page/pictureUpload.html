@@ -191,9 +191,8 @@ $(document).ready(function(){
 </head>
 
 <body>
-	<div id = "content">
-        <h2></h2>
-
+	<div id="content" style="float:left; margin: 20px;">
+	
         <form id = "form" action = "/picsvr/fileOperate/fileUpload" method = "post" enctype = "multipart/form-data" >
 
            <div class="panel panel-primary" style="width: 580px; ">
@@ -219,15 +218,18 @@ $(document).ready(function(){
                <button type="button" id="btnCancel" class="btn btn-default" onclick="swfUpload.cancelQueue();" disabled="disabled">
                		<span class="glyphicon glyphicon-off" aria-hidden="true"></span>&nbsp;取消所有
                </button>
+               <!-- 
                <button type="button" class="btn btn-default" onclick="javaScript:window.close();" >
                		<span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>&nbsp;关闭
-               </button>
+               </button> 
+               -->
            </div>
 
         </form>
 
     </div>
     
+    <!-- 功能没问题,暂时屏蔽
     <div id = "deleteFilesDiv">
     	删除文件或文件夹：
     	<form id="deleteFilesForm">
@@ -237,6 +239,7 @@ $(document).ready(function(){
     	<button type="button" id="confirmDelBtn" class="btn btn-default" >
        		<span class="glyphicon glyphicon-remove-sign" aria-hidden="true"></span>&nbsp;确认
         </button>
-    </div>
+    </div> 
+    -->
 </body>
 </html>

@@ -5,6 +5,8 @@ import javax.servlet.ServletContextListener;
 
 import com.hro.core.cache.PictureCacheManager;
 import com.hro.core.common.AppHelper;
+import com.hro.core.common.util.PicoContainerManager;
+import com.hro.core.service.impl.PicInfoServiceImpl;
 
 public class SystemInitListener implements ServletContextListener {
 
@@ -16,9 +18,10 @@ public class SystemInitListener implements ServletContextListener {
 
 	@Override
 	public void contextInitialized(ServletContextEvent arg0) {
-		//³õÊ¼»¯Í¼Æ¬»º´æµ¥Àı
+		//åˆå§‹åŒ–å›¾ç‰‡ç¼“å­˜å•ä¾‹
 		PictureCacheManager.getInstance();
-		//AppHelper³õÊ¼»¯ÅäÖÃĞÅÏ¢
+		
+		//AppHelperåˆå§‹åŒ–é…ç½®ä¿¡æ¯
 		AppHelper.initConfig();
 	}
 

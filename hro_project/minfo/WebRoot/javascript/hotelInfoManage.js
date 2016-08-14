@@ -1,5 +1,5 @@
 /**
- * ¾Æµê¹ÜÀíÒ³Ãæjs
+ * é…’åº—ä¿¡æ¯ç®¡ç†js
  */
 var table = null;
 
@@ -21,7 +21,7 @@ $(document).ready(function() {
         },
         /***
         sServerMethod: "POST",
-        sAjaxSource: "/mhotel/hotel/queryHotelInfo.do",  
+        sAjaxSource: "/minfo/hotel/queryHotelInfo.do",  
         fnServerParams: function ( aoData ) {
         	//dataTableFormToBean(document.getElementById("queryForm"), null, aoData);
         	formToBean(document.getElementById("queryForm"));
@@ -66,7 +66,7 @@ $(document).ready(function() {
     	var rows = $('#hotelInfoTable').getSelectRows();
     	var len = rows.length;
     	if(len == 0){
-    		$('#tips-modal-dialog .modal-body').html('<span>ÇëÑ¡ÔñÒªÉ¾³ıµÄÊı¾İ£¡</span>');
+    		$('#tips-modal-dialog .modal-body').html('<span>è¯·é€‰æ‹©ä¸€è¡Œè®°å½•</span>');
     		$('#tips-modal-dialog').modal('show');
     	}else{
     		$('#del-modal-dialog').modal('show');
@@ -76,7 +76,7 @@ $(document).ready(function() {
     $('#editBtn').on( 'click', function(){
     	var rows = $('#hotelInfoTable').getSelectRows();
     	if( rows == null || rows == undefined || rows.length == 0 || rows.length > 1){
-    		$('#tips-modal-dialog .modal-body').html('<span>ÇëÑ¡ÔñÒ»Ìõ¼ÇÂ¼£¡</span>');
+    		$('#tips-modal-dialog .modal-body').html('<span>è¯·é€‰æ‹©ä¸€è¡Œè®°å½•</span>');
     		$('#tips-modal-dialog').modal('show');
     		return;
     	}
@@ -85,16 +85,53 @@ $(document).ready(function() {
     	$('#editHotelInfo #in_hotelAddress').val(rows[0].address);
     	$('#editHotelInfo #in_hotelIntroduction').val(rows[0].introduction);
     	
+    	var tmpObj = new Object();
+    	tmpObj.groupId = rows[0].id;
+    	tmpObj.picType = 'HOTEL_TYPE';
+    	
+    	var jsonStr = JSON.stringify(tmpObj);
+    	$.ajax({
+		   type: 'POST',
+		   url: '/minfo/hotel/getHotelPicInfo.do',
+		   data: jsonStr,
+		   contentType: 'application/json',
+		   dataType: 'json',
+		   async: true,
+		   success: function(rtObj){
+			  if(rtObj != null && rtObj != undefined){
+				  var picInfoList = rtObj.picInfoList;
+				  var tmpHtml = '';
+				  for( var i = 0; i< picInfoList.length; i++){
+					  tmpHtml += '<img src="/picsvr'+picInfoList[i].virtualPicPath+'/'+picInfoList[i].picName+'" width="100" height="100" />';
+				  }
+				  
+				  alert(' tmpHtml --->'+ tmpHtml );
+				  
+				  $('#tab_base_info').html(tmpHtml);
+			  }
+		   }
+		});
+    	
     	$('#edit-modal-dialog').modal('show');
+    	
+    	var iframe = $("#fileUploadFrame")[0];
+    	var params = new Object();
+    	params.filePath = '/files';
+    	params.picType = 'HOTEL_TYPE';
+    	params.groupId = rows[0].id;
+    	
+    	iframe.contentWindow.initSwfUpload(params);
+        
     });
     
     $('#resetBtn').on( 'click', function(){
     	$('#queryForm')[0].reset();
     });
+    
 } );
 
 /**
- * ±£´æ¾ÆµêĞÅÏ¢
+ * ä¿å­˜é…’åº—ä¿¡æ¯
  **/
 function saveInfo(){
 	var bean = formToBean(document.getElementById("addHotelInfo"));
@@ -102,7 +139,7 @@ function saveInfo(){
 	
 	$.ajax({
 	   type: 'POST',
-	   url: '/mhotel/hotel/saveHotelInfo.do',
+	   url: '/minfo/hotel/saveHotelInfo.do',
 	   data: jsonStr,
 	   contentType: 'application/json',
 	   dataType: 'json',
@@ -115,7 +152,7 @@ function saveInfo(){
 }
 
 /**
- * ĞŞ¸Ä¾ÆµêĞÅÏ¢
+ * æ›´æ–°é…’åº—åŸºæœ¬ä¿¡æ¯
  */
 function confirmUpdate(){
 	var bean = formToBean(document.getElementById("editHotelInfo"));
@@ -123,7 +160,7 @@ function confirmUpdate(){
 	
 	$.ajax({
 	   type: 'POST',
-	   url: '/mhotel/hotel/updateHotelInfo.do',
+	   url: '/minfo/hotel/updateHotelInfo.do',
 	   data: jsonStr,
 	   contentType: 'application/json',
 	   dataType: 'json',
@@ -136,7 +173,7 @@ function confirmUpdate(){
 }
 
 /**
- * É¾³ıÑ¡ÖĞµÄÊı¾İ
+ * åˆ é™¤é…’åº—ä¿¡æ¯
  **/
 function confirmDelete(){
 	var rows = $('#hotelInfoTable').getSelectRows();
@@ -153,7 +190,7 @@ function confirmDelete(){
 	
 	$.ajax({
 	   type: 'POST',
-	   url: '/mhotel/hotel/deleteHotelInfo.do',
+	   url: '/minfo/hotel/deleteHotelInfo.do',
 	   data: jsonStr,
 	   contentType: 'application/json',
 	   dataType: 'json',
@@ -162,4 +199,30 @@ function confirmDelete(){
 	      table.ajax.reload();
 	   }
 	});
+}
+
+/**
+ * æ‰“å°åŠŸèƒ½
+ * @param gridcontrol
+ * @param title
+ */
+function printPage(gridcontrol,title) {
+	
+	var titleHtml = '<OBJECT id="printBrowser" height=0 width=0 classid=CLSID:8856F961-340A-11D0-A96B-00C04FD705A2 name=wb></OBJECT><span>æ‰“å°é¢„è§ˆ</span>';
+	
+	var newwin = window.open("printer.html", "", "");
+	newwin.document.write(titleHtml);
+	newwin.document.location.reload();
+	
+	try{      
+       var Wsh=new ActiveXObject("WScript.Shell");      
+       Wsh.RegWrite("HKEY_CURRENT_USER\\Software\\Microsoft\\Internet Explorer\\PageSetup\\header","");  //é€šè¿‡ä¿®æ”¹æ³¨å†Œè¡¨çš„æ–¹å¼ é¡µçœ‰å’Œé¡µè„šä¹Ÿå¯ä»¥æ”¹æˆä½ æƒ³è¦çš„å†…å®¹  
+       Wsh.RegWrite("HKEY_CURRENT_USER\\Software\\Microsoft\\Internet Explorer\\PageSetup\\footer","");     
+    }catch(e){  
+       //alert(e.name+e.message);  
+    }
+	
+	newwin.document.getElementById('printBrowser').execWB(7,1);
+	//newwin.print();
+	newwin.close();
 }

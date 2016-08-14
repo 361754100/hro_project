@@ -17,10 +17,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.hro.core.common.util.PicoContainerManager;
 import com.hro.core.common.util.QueryParams;
 import com.hro.core.common.util.StringUtil;
 import com.hro.core.model.HotelBaseInfo;
+import com.hro.core.mongo.vo.PicInfo;
+import com.hro.core.mongo.vo.PicTypeEnum;
+import com.hro.core.service.impl.PicInfoServiceImpl;
 import com.hro.core.service.mhotel.HotelBaseInfoService;
+import com.hro.core.service.picsvr.PicInfoService;
 
 @Controller
 @RequestMapping("/hotel")
@@ -112,6 +117,23 @@ public class HotelContorller {
 		rtMap.put("cnt", cnt);
 		return rtMap;
 	}
+	
+	@RequestMapping(value="/getHotelPicInfo.do", method=RequestMethod.POST)
+	public @ResponseBody Map<String,Object> getHotelPicInfo(@RequestBody Map<String,Object> params){
+		Map<String,Object> rtMap = new HashMap<String,Object>();
+		
+		String groupId = StringUtil.toString(params.get("groupId"));
+		String picType = StringUtil.toString(params.get("picType"));
+		
+		PicoContainerManager picoManager = PicoContainerManager.getInstance();
+		PicInfoService picInfoService = (PicInfoService) picoManager.getComponent(PicInfoService.class);
+		
+		List<PicInfo> picInfoList = picInfoService.getPicInfoByTypeGroup(PicTypeEnum.valueOf(picType).getValue(), groupId);
+		
+		rtMap.put("picInfoList", picInfoList);
+		return rtMap;
+	}
+	
 
 	public HotelBaseInfoService getHotelBaseInfoService() {
 		return hotelBaseInfoService;

@@ -4,21 +4,24 @@
 <meta charset="UTF-8">
 <title>图片上传</title>
 
-<link rel="stylesheet" type="text/css" href="../css/swfupload/default.css" />
-<link rel="stylesheet" type="text/css" href="../css/bootstrap/bootstrap.css" />
-<script type="text/javascript" src="../javascript/common/StringUtil.js"></script>
-<script type="text/javascript" src="../javascript/common/domUtil.js"></script>
-<script src="../javascript/swfupload/swfupload.js"></script>
-<script src="../javascript/swfupload/swfupload.queue.js"></script>
-<script src="../javascript/swfupload/fileprogress.js"></script>
-<script src="../javascript/swfupload/handlers.js"></script>
-<script src="../javascript/jquery/jquery-1.11.3.js"></script>
-<script type="text/javascript" src="../javascript/bootstrap/bootstrap.js"></script>
+<link rel="stylesheet" type="text/css" href="/picsvr/css/swfupload/default.css" />
+<link rel="stylesheet" type="text/css" href="/picsvr/css/bootstrap/bootstrap.css" />
+<script type="text/javascript" src="/picsvr/javascript/common/StringUtil.js"></script>
+<script type="text/javascript" src="/picsvr/javascript/common/domUtil.js"></script>
+<script type="text/javascript" src="/picsvr/javascript/swfupload/swfupload.js"></script>
+<script type="text/javascript" src="/picsvr/javascript/swfupload/swfupload.queue.js"></script>
+<script type="text/javascript" src="/picsvr/javascript/swfupload/fileprogress.js"></script>
+<script type="text/javascript" src="/picsvr/javascript/swfupload/handlers.js"></script>
+<script type="text/javascript" src="/picsvr/javascript/jquery/jquery-1.11.3.js"></script>
+<script type="text/javascript" src="/picsvr/javascript/bootstrap/bootstrap.js"></script>
 <script type="text/javascript">
 <!--
 var swfUpload;
-
 window.onload = function () {
+	//initSwfUpload();
+};
+
+function initSwfUpload( params ){
 
     var settings = {
 
@@ -26,7 +29,7 @@ window.onload = function () {
 
            upload_url: "/picsvr/fileOperate/fileUpload" ,
 
-           post_params: { "filePath" : "/files" } ,
+           post_params: {"params": getPostParams(params) } ,
 
            file_size_limit : "200MB" ,
 
@@ -101,60 +104,43 @@ window.onload = function () {
     swfUpload = new SWFUpload(settings);
 
     swfUpload.stopped = false ;
+}
 
-  } ;
-
-
-
-  function fileDialogComplete(numberselected, numberqueued) {
-
-     if (swfUpload.getStats().files_queued > 0) {
-
+function fileDialogComplete(numberselected, numberqueued) {
+	
+	if (swfUpload.getStats().files_queued > 0) {
 		document.getElementById( "btnCancel" ).disabled = false;
+	}
+}
 
-     }
+function queueComplete(numberselected, numberqueued) {
 
-  }
+	//alert(numberselected + "-" + numberqueued);
+}
 
+function upload() {
+	if (swfUpload.getStats().files_queued > 0) {
+		//document.getElementById("btnCancel").disabled = true;
+		
+		swfUpload.startUpload();
+	} else {
+		alert( " 请选择要上传的文件 !" );
+	}
+}
 
+function stop() {
+	if (swfUpload) {
+		swfUpload.stopUpload();
+	}
+}
 
-
-
-  function queueComplete(numberselected, numberqueued) {
-
-    //alert(numberselected + "-" + numberqueued);
-
-  }
-
-
-
-  function upload() {
-
-   if (swfUpload.getStats().files_queued > 0) {
-
-     //document.getElementById("btnCancel").disabled = true;
-
-      swfUpload.startUpload();
-
-   } else {
-
-       alert( " 请选择要上传的文件 !" );
-
-   }
-
-  }
-
- 
-
-  function stop() {
-
-     if (swfUpload) {
-
-       swfUpload.stopUpload();
-
-    }
-
-  }
+function getPostParams(params){
+	if( params == null || params == undefined ){
+		params = new Object();
+		params.filePath = '/files';
+	}
+	return JSON.stringify(params);
+}
 //-->
 </script>
 <script type="text/javascript">
@@ -184,7 +170,6 @@ $(document).ready(function(){
 		   }
 		});
 	});
-	
 });
 </script>
 
@@ -192,7 +177,7 @@ $(document).ready(function(){
 
 <body>
 	<div id="content" style="float:left; margin: 20px;">
-	
+		
         <form id = "form" action = "/picsvr/fileOperate/fileUpload" method = "post" enctype = "multipart/form-data" >
 
            <div class="panel panel-primary" style="width: 580px; ">

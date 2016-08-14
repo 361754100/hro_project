@@ -26,10 +26,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.alibaba.fastjson.JSON;
 import com.hro.core.cache.PictureCacheManager;
 import com.hro.core.common.log.PicSvrLog;
 import com.hro.core.common.util.StringUtil;
-import com.hro.core.model.PicInfo;
+import com.hro.core.mongo.vo.PicInfo;
+import com.hro.core.mongo.vo.PicTypeEnum;
 import com.hro.core.mongodb.MongoJdbc;
 import com.hro.core.service.picsvr.PicInfoService;
 import com.mongodb.DBCollection;
@@ -43,9 +45,9 @@ import sun.misc.BASE64Encoder;
 @RequestMapping("/fileOperate")
 public class FileOperateController {
 	
-	//½âÂëÆ÷
+	//è§£ç å™¨
 	private BASE64Decoder decoder = new BASE64Decoder();
-	//±àÂëÆ÷
+	//ç¼–ç å™¨
 	private BASE64Encoder encoder = new BASE64Encoder();
 	
 	@Autowired
@@ -54,31 +56,29 @@ public class FileOperateController {
 
 	@RequestMapping(value="/fileUpload", method=RequestMethod.POST  )
 	@ResponseBody
-	public String fileUpload(@RequestParam("uploadFile") MultipartFile uploadFile,@RequestParam("filePath") String filePath, HttpServletRequest request ){
+	public String fileUpload(@RequestParam("uploadFile") MultipartFile uploadFile,@RequestParam("params") String params, HttpServletRequest request ){
 
 		String rtMsg = "error";
-		//Èç¹ûÓÃµÄÊÇTomcat·şÎñÆ÷£¬ÔòÎÄ¼ş»áÉÏ´«µ½\\%TOMCAT_HOME%\\webapps\\YourWebProject\\WEB-INF\\upload\\ÎÄ¼ş¼ĞÖĞ  
-        String realPath = request.getSession().getServletContext().getRealPath("/uploaded"+filePath);  
-        //ÕâÀï²»±Ø´¦ÀíIOÁ÷¹Ø±ÕµÄÎÊÌâ£¬ÒòÎªFileUtils.copyInputStreamToFile()·½·¨ÄÚ²¿»á×Ô¶¯°ÑÓÃµ½µÄIOÁ÷¹Øµô£¬ÎÒÊÇ¿´ËüµÄÔ´Âë²ÅÖªµÀµÄ  
+		//å¦‚æœç”¨çš„æ˜¯TomcatæœåŠ¡å™¨ï¼Œåˆ™æ–‡ä»¶ä¼šä¸Šä¼ åˆ°\\%TOMCAT_HOME%\\webapps\\YourWebProject\\WEB-INF\\upload\\æ–‡ä»¶å¤¹ä¸­  
+		Map<String, Object> parameters = JSON.parseObject(params, Map.class);
+		
+		String filePath = StringUtil.toString(parameters.get("filePath"));
+		String virtualPath = "/uploaded"+filePath;
+        String realPath = request.getSession().getServletContext().getRealPath(virtualPath);  
+        //è¿™é‡Œä¸å¿…å¤„ç†IOæµå…³é—­çš„é—®é¢˜ï¼Œå› ä¸ºFileUtils.copyInputStreamToFile()æ–¹æ³•å†…éƒ¨ä¼šè‡ªåŠ¨æŠŠç”¨åˆ°çš„IOæµå…³æ‰ï¼Œæˆ‘æ˜¯çœ‹å®ƒçš„æºç æ‰çŸ¥é“çš„  
         try {
 			FileUtils.copyInputStreamToFile(uploadFile.getInputStream(), new File(realPath, uploadFile.getOriginalFilename()));
 	        
 			PicInfo picInfo = new PicInfo();
 			picInfo.setId(UUID.randomUUID().toString());
+			picInfo.setPhysicalPicPath(realPath);
+			picInfo.setPicName(uploadFile.getOriginalFilename());
+			picInfo.setPicType(PicTypeEnum.valueOf(StringUtil.toString(parameters.get("picType"))).getValue());
+			picInfo.setGroupId(StringUtil.toString(parameters.get("groupId")));
+			picInfo.setVirtualPicPath(virtualPath);
 			
 			int cnt = picInfoService.savePicInfo(picInfo);
-			System.out.println(" cnt --->"+ cnt);
-			
-			
-//			MongoOperations mongoDatabase = MongoJdbc.getMongoTemplate("hero_mongodb");
-//			DBCollection collection = mongoDatabase.getCollection("hero_picsvr");
-////	        List<Document> documents = new ArrayList<Document>();  
-//	        
-//	        Document fileDoc = new Document("realPath", realPath+"/"+uploadFile.getOriginalFilename())
-//				.append("virtualPath", filePath+"/"+uploadFile.getOriginalFilename());
-//	        
-//	        mongoDatabase.save(fileDoc);
-//	        collection.insertMany(documents);
+			PicSvrLog.info("[FileOperateController.fileUpload] cnt->"+ cnt +" picInfo ->"+ JSON.toJSONString(picInfo));
 			
 			rtMsg = "success";
 		} catch (Exception e) {
@@ -92,11 +92,11 @@ public class FileOperateController {
 	public void imagePreview(@RequestParam("uploadFile") MultipartFile uploadFile, @RequestParam("filePath") String filePath, HttpServletRequest request, HttpServletResponse response ){
 
 		String rtMsg = "error";
-		//Èç¹ûÓÃµÄÊÇTomcat·şÎñÆ÷£¬ÔòÎÄ¼ş»áÉÏ´«µ½\\%TOMCAT_HOME%\\webapps\\YourWebProject\\WEB-INF\\upload\\ÎÄ¼ş¼ĞÖĞ  
+		//å¦‚æœç”¨çš„æ˜¯TomcatæœåŠ¡å™¨ï¼Œåˆ™æ–‡ä»¶ä¼šä¸Šä¼ åˆ°\\%TOMCAT_HOME%\\webapps\\YourWebProject\\WEB-INF\\upload\\æ–‡ä»¶å¤¹ä¸­  
         String realPath = request.getSession().getServletContext().getRealPath("/uploaded"+filePath);
-        //Í¼Æ¬Êä³ö¶ÔÏó
+        //å›¾ç‰‡è¾“å‡ºå¯¹è±¡
         OutputStream out = null;
-        //ÕâÀï²»±Ø´¦ÀíIOÁ÷¹Ø±ÕµÄÎÊÌâ£¬ÒòÎªFileUtils.copyInputStreamToFile()·½·¨ÄÚ²¿»á×Ô¶¯°ÑÓÃµ½µÄIOÁ÷¹Øµô£¬ÎÒÊÇ¿´ËüµÄÔ´Âë²ÅÖªµÀµÄ  
+        //è¿™é‡Œä¸å¿…å¤„ç†IOæµå…³é—­çš„é—®é¢˜ï¼Œå› ä¸ºFileUtils.copyInputStreamToFile()æ–¹æ³•å†…éƒ¨ä¼šè‡ªåŠ¨æŠŠç”¨åˆ°çš„IOæµå…³æ‰ï¼Œæˆ‘æ˜¯çœ‹å®ƒçš„æºç æ‰çŸ¥é“çš„  
         try {
         	
         	byte[] data = uploadFile.getBytes();
@@ -121,7 +121,7 @@ public class FileOperateController {
 	
 	
 	/***
-	 * °´ÕÕÎÄ¼şÃû³ÆÉ¾³ıÎÄ¼ş
+	 * æŒ‰ç…§æ–‡ä»¶åç§°åˆ é™¤æ–‡ä»¶
 	 * @param params
 	 * @param request
 	 * @return
@@ -138,7 +138,7 @@ public class FileOperateController {
 			return rtMap;
 		}
 		
-		//Èç¹ûÓÃµÄÊÇTomcat·şÎñÆ÷£¬ÔòÎÄ¼ş»áÉÏ´«µ½\\%TOMCAT_HOME%\\webapps\\YourWebProject\\WEB-INF\\upload\\ÎÄ¼ş¼ĞÖĞ  
+		//å¦‚æœç”¨çš„æ˜¯TomcatæœåŠ¡å™¨ï¼Œåˆ™æ–‡ä»¶ä¼šä¸Šä¼ åˆ°\\%TOMCAT_HOME%\\webapps\\YourWebProject\\WEB-INF\\upload\\æ–‡ä»¶å¤¹ä¸­  
         String realPath = request.getSession().getServletContext().getRealPath(tmpFilePath);  
 		
 		String[] fileNames = tmpFileNames.split(",");
@@ -169,23 +169,23 @@ public class FileOperateController {
 	public String multiFileUpload(@RequestParam("Filedata") MultipartFile[] uploadFiles, HttpServletRequest request ){
 		String rtMsg = "error";
 		
-		//Èç¹ûÓÃµÄÊÇTomcat·şÎñÆ÷£¬ÔòÎÄ¼ş»áÉÏ´«µ½\\%TOMCAT_HOME%\\webapps\\YourWebProject\\WEB-INF\\upload\\ÎÄ¼ş¼ĞÖĞ  
+		//å¦‚æœç”¨çš„æ˜¯TomcatæœåŠ¡å™¨ï¼Œåˆ™æ–‡ä»¶ä¼šä¸Šä¼ åˆ°\\%TOMCAT_HOME%\\webapps\\YourWebProject\\WEB-INF\\upload\\æ–‡ä»¶å¤¹ä¸­  
 		String realPath = request.getSession().getServletContext().getRealPath("/uploaded/files");  
-		//ÕâÀï²»±Ø´¦ÀíIOÁ÷¹Ø±ÕµÄÎÊÌâ£¬ÒòÎªFileUtils.copyInputStreamToFile()·½·¨ÄÚ²¿»á×Ô¶¯°ÑÓÃµ½µÄIOÁ÷¹Øµô£¬ÎÒÊÇ¿´ËüµÄÔ´Âë²ÅÖªµÀµÄ  
+		//è¿™é‡Œä¸å¿…å¤„ç†IOæµå…³é—­çš„é—®é¢˜ï¼Œå› ä¸ºFileUtils.copyInputStreamToFile()æ–¹æ³•å†…éƒ¨ä¼šè‡ªåŠ¨æŠŠç”¨åˆ°çš„IOæµå…³æ‰ï¼Œæˆ‘æ˜¯çœ‹å®ƒçš„æºç æ‰çŸ¥é“çš„  
 		try {
-			//Èç¹ûÖ»ÊÇÉÏ´«Ò»¸öÎÄ¼ş£¬ÔòÖ»ĞèÒªMultipartFileÀàĞÍ½ÓÊÕÎÄ¼ş¼´¿É£¬¶øÇÒÎŞĞèÏÔÊ½Ö¸¶¨@RequestParam×¢½â  
-	        //Èç¹ûÏëÉÏ´«¶à¸öÎÄ¼ş£¬ÄÇÃ´ÕâÀï¾ÍÒªÓÃMultipartFile[]ÀàĞÍÀ´½ÓÊÕÎÄ¼ş£¬²¢ÇÒ»¹ÒªÖ¸¶¨@RequestParam×¢½â  
-	        //²¢ÇÒÉÏ´«¶à¸öÎÄ¼şÊ±£¬Ç°Ì¨±íµ¥ÖĞµÄËùÓĞ<input type="file"/>µÄname¶¼Ó¦¸ÃÊÇmyfiles£¬·ñÔò²ÎÊıÀïµÄmyfilesÎŞ·¨»ñÈ¡µ½ËùÓĞÉÏ´«µÄÎÄ¼ş  
+			//å¦‚æœåªæ˜¯ä¸Šä¼ ä¸€ä¸ªæ–‡ä»¶ï¼Œåˆ™åªéœ€è¦MultipartFileç±»å‹æ¥æ”¶æ–‡ä»¶å³å¯ï¼Œè€Œä¸”æ— éœ€æ˜¾å¼æŒ‡å®š@RequestParamæ³¨è§£  
+	        //å¦‚æœæƒ³ä¸Šä¼ å¤šä¸ªæ–‡ä»¶ï¼Œé‚£ä¹ˆè¿™é‡Œå°±è¦ç”¨MultipartFile[]ç±»å‹æ¥æ¥æ”¶æ–‡ä»¶ï¼Œå¹¶ä¸”è¿˜è¦æŒ‡å®š@RequestParamæ³¨è§£  
+	        //å¹¶ä¸”ä¸Šä¼ å¤šä¸ªæ–‡ä»¶æ—¶ï¼Œå‰å°è¡¨å•ä¸­çš„æ‰€æœ‰<input type="file"/>çš„nameéƒ½åº”è¯¥æ˜¯myfilesï¼Œå¦åˆ™å‚æ•°é‡Œçš„myfilesæ— æ³•è·å–åˆ°æ‰€æœ‰ä¸Šä¼ çš„æ–‡ä»¶  
 	        for(MultipartFile uploadFile : uploadFiles){  
 	            if(uploadFile.isEmpty()){  
-	                System.out.println("ÎÄ¼şÎ´ÉÏ´«");  
+	                System.out.println("æ–‡ä»¶æœªä¸Šä¼ ");  
 	            }else{  
-	                System.out.println("ÎÄ¼ş³¤¶È: " + uploadFile.getSize());  
-	                System.out.println("ÎÄ¼şÀàĞÍ: " + uploadFile.getContentType());  
-	                System.out.println("ÎÄ¼şÃû³Æ: " + uploadFile.getName());  
-	                System.out.println("ÎÄ¼şÔ­Ãû: " + uploadFile.getOriginalFilename());  
+	                System.out.println("æ–‡ä»¶é•¿åº¦: " + uploadFile.getSize());  
+	                System.out.println("æ–‡ä»¶ç±»å‹: " + uploadFile.getContentType());  
+	                System.out.println("æ–‡ä»¶åç§°: " + uploadFile.getName());  
+	                System.out.println("æ–‡ä»¶åŸå: " + uploadFile.getOriginalFilename());  
 	                System.out.println("========================================");  
-	                //ÕâÀï²»±Ø´¦ÀíIOÁ÷¹Ø±ÕµÄÎÊÌâ£¬ÒòÎªFileUtils.copyInputStreamToFile()·½·¨ÄÚ²¿»á×Ô¶¯°ÑÓÃµ½µÄIOÁ÷¹Øµô£¬ÎÒÊÇ¿´ËüµÄÔ´Âë²ÅÖªµÀµÄ  
+	                //è¿™é‡Œä¸å¿…å¤„ç†IOæµå…³é—­çš„é—®é¢˜ï¼Œå› ä¸ºFileUtils.copyInputStreamToFile()æ–¹æ³•å†…éƒ¨ä¼šè‡ªåŠ¨æŠŠç”¨åˆ°çš„IOæµå…³æ‰ï¼Œæˆ‘æ˜¯çœ‹å®ƒçš„æºç æ‰çŸ¥é“çš„  
 	                FileUtils.copyInputStreamToFile(uploadFile.getInputStream(), new File(realPath, uploadFile.getOriginalFilename()));  
 	            }  
 	        }
@@ -211,7 +211,7 @@ public class FileOperateController {
 		String fileKey = filePath + "/"+ fileName;
 		try {
 			
-			//Èç¹ûÍ¼Æ¬»º´æÒÑ¾­´æÔÚ£¬ÔòÖ±½Ó¶ÁÈ¡»º´æÊı¾İ
+			//å¦‚æœå›¾ç‰‡ç¼“å­˜å·²ç»å­˜åœ¨ï¼Œåˆ™ç›´æ¥è¯»å–ç¼“å­˜æ•°æ®
 			if( PictureCacheManager.getInstance().isDataExist(fileKey) ){
 				byte[] bytefer = PictureCacheManager.getInstance().getData(fileKey);
 				out = response.getOutputStream();
@@ -222,7 +222,7 @@ public class FileOperateController {
 				long timeEnd = System.currentTimeMillis();
 				PicSvrLog.debug("[FileOperateController.queryFile] -> read from cache times:"+ (timeEnd - timeBegin) );
 			}else {
-				//Èç¹ûÓÃµÄÊÇTomcat·şÎñÆ÷£¬ÔòÎÄ¼ş»áÉÏ´«µ½\\%TOMCAT_HOME%\\webapps\\YourWebProject\\WEB-INF\\upload\\ÎÄ¼ş¼ĞÖĞ  
+				//å¦‚æœç”¨çš„æ˜¯TomcatæœåŠ¡å™¨ï¼Œåˆ™æ–‡ä»¶ä¼šä¸Šä¼ åˆ°\\%TOMCAT_HOME%\\webapps\\YourWebProject\\WEB-INF\\upload\\æ–‡ä»¶å¤¹ä¸­  
 				String realPath = request.getSession().getServletContext().getRealPath("/uploaded/"+ fileKey);  
 				File file = new File(realPath);
 				
@@ -271,11 +271,11 @@ public class FileOperateController {
 		System.out.println("test ------>");
 		MongoTemplate mongoDatabase = MongoJdbc.getMongoTemplate("hero_mongodb");
         DBCollection collection = mongoDatabase.getCollection("hero_picsvr");
-        //¼ìË÷ËùÓĞÎÄµµ  
+        //æ£€ç´¢æ‰€æœ‰æ–‡æ¡£  
         /** 
-        * 1. »ñÈ¡µü´úÆ÷FindIterable<Document> 
-        * 2. »ñÈ¡ÓÎ±êMongoCursor<Document> 
-        * 3. Í¨¹ıÓÎ±ê±éÀú¼ìË÷³öµÄÎÄµµ¼¯ºÏ 
+        * 1. è·å–è¿­ä»£å™¨FindIterable<Document> 
+        * 2. è·å–æ¸¸æ ‡MongoCursor<Document> 
+        * 3. é€šè¿‡æ¸¸æ ‡éå†æ£€ç´¢å‡ºçš„æ–‡æ¡£é›†åˆ 
         * */  
         
         DBCursor dbCursor = collection.find();
